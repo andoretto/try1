@@ -58,8 +58,9 @@ class Empleado(db.Model):
 
 class Citas(db.Model):
     __tablename__="citas"
-    empleados_documento=db.Column(db.Integer,db.ForeignKey('empleados.documento'),nullable=False,primary_key=True)
-    usuarios_documento=db.Column(db.Integer,db.ForeignKey('usuarios.documento'),nullable=False,primary_key=True)
+    idcita = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    empleados_documento=db.Column(db.Integer,db.ForeignKey('empleados.documento'),nullable=False)
+    usuarios_documento=db.Column(db.Integer,db.ForeignKey('usuarios.documento'),nullable=False)
     fecha=db.Column(db.Date, nullable=False)
     hora=db.Column(db.Time, nullable=False)
     motivo=db.Column(db.String(45),nullable=True)
@@ -287,25 +288,30 @@ def method_name():
 #ruta para consultar citas de acuerdo al documento del usuario
 @app.route("/cliente/citas/<int:documento>", methods=['GET'])
 def citasCliente(documento):
-    cita= Citas.query.filter_by(usuarios_documento=documento).first()
+    # Utilizando join para obtener información de la cita y los clientes
+    citas = db.session.query(Citas, Usuario).join(
+        Usuario, Citas.usuarios_documento == Usuario.documento
+    ).filter(Usuario.documento == documento).all()
 
-    if not cita:
-        return jsonify({"error": "Cita  no encontrada"}), 404
+    if not citas:
+        return jsonify({"error": "Cita no encontrada"}), 404
 
-    fecha_formateada = cita.fecha.strftime("%Y-%m-%d")
-    hora_formateada = cita.hora.strftime("%H:%M:%S")
+    arregloCitas = []
+    for cita, usuario in citas:
+        fecha_formateada = cita.fecha.strftime("%Y-%m-%d")
+        hora_formateada = cita.hora.strftime("%H:%M:%S")
 
-    data_citas = {
-        "documento_cliente": cita.usuarios_documento,
-        "documento_empleado": cita.empleados_documento,
-        "fecha": fecha_formateada,
-        "hora": hora_formateada,
-        "motivo": cita.motivo,
-    }
+        data_citas = {
+            "idcita": cita.idcita,
+            "documento_cliente": usuario.documento,
+            "documento_empleado": cita.empleados_documento,
+            "fecha": fecha_formateada,
+            "hora": hora_formateada,
+            "motivo": cita.motivo,
+        }
+        arregloCitas.append(data_citas)
 
-    #formateo de hora y fecha
-
-    return jsonify(data_citas)
+    return jsonify(arregloCitas)
 
 #login
 @app.route('/login',methods=['POST'])

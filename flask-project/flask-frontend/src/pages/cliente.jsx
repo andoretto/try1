@@ -11,6 +11,7 @@ function Cliente() {
   const [loading, setLoading] = useState(true);
   const [documentoAEditar, setDocumentoAEditar]=useState(null)
   const [empleado, setEmpleado] = useState([]);
+  const [citasClientes,SetCitasClientes]=useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [cita,SetCita]=useState({
     empleados_documento:'',
@@ -19,11 +20,11 @@ function Cliente() {
     hora:'',
     motivo:'',
   })
-
+  const documento=state.documento;
   const handleChange=(e)=>{
     const{name,value}=e.target;
     SetCita({... cita,[name]:value})
-    console.log('name changed',name," value: ",value)
+    
   }
   const handleSubmit=(e)=>{
     e.preventDefault();
@@ -33,7 +34,7 @@ function Cliente() {
     }
     const citaAgendada={
       empleados_documento:cita.empleados_documento,
-      usuarios_documento:cita.usuarios_documento,
+      usuarios_documento:documento,
       fecha:cita.fecha,
       hora:cita.hora,
       motivo:cita.motivo
@@ -68,24 +69,37 @@ function Cliente() {
       try {
         const resultadoTrabajador=await axios("http://127.0.0.1:5000/empleados");
         setEmpleado(resultadoTrabajador.data);
-        console.log(resultadoTrabajador.data)
+        
         
       }catch(error){console.error(error)
       setLoading(false)}
     }
+    const citasCliente=async()=>{
+      const documento=state.documento
+      try{
+        const citasCliente=await axios.get('http://127.0.0.1:5000/cliente/citas/'+documento)
+        SetCitasClientes(citasCliente.data)
+        console.log(citasCliente.data)
+        
+      }catch(error){
+        console.error(error)
+      }
+  }
     const datosCliente= async()=>{
       const documento=state.documento;
       try  {
-        const infoCliente=await axios.get('http://127.0.0.1:5000/cliente/'+documento)
+      const infoCliente=await axios.get('http://127.0.0.1:5000/cliente/'+documento)
       SetInfoCliente(infoCliente.data)
       setLoading(false)
-      console.log(infoCliente.data.nombre1)
+     
       }catch(error){
         console.error(error)
         setLoading(false)
       }
 }
+
   fetchData();
+  citasCliente();
   datosCliente();
 },[state.documentoCliente]);
 if (loading) {
@@ -97,6 +111,7 @@ const abrirModalEdicion= (documento)=>{
 const cerrarModalEdicion =()=>{
   setDocumentoAEditar(null);
 }
+
   return (
     <div>
       <div>
@@ -126,12 +141,16 @@ const cerrarModalEdicion =()=>{
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                  </tr>
+                  {citasClientes && citasClientes.map((cita)=>(
+                     <tr key={cita.hora}>
+                      <td>{cita.fecha}</td>
+                      <td>{cita.hora}</td>
+                      <td>{cita.documento_empleado}</td>
+                      <td>{cita.motivo}</td>
+                      </tr>
+                  ))
+                 
+                    }
                 </tbody>
               </table>
             </div>
@@ -175,7 +194,7 @@ const cerrarModalEdicion =()=>{
               </div>
             </div>
 
-            <div className="row mb-3">
+            <div className="row">
               <div className="col-6">
                 <label >Seleccionar fecha:</label>
                 <input
@@ -197,6 +216,12 @@ const cerrarModalEdicion =()=>{
                   value={cita.hora}
                   required
                 />
+              </div>
+            </div>
+            <div className="row mt-2">
+              <div className="col-12">
+                <label >Motivo:</label>
+                <input type="text" className="form-control" placeholder="Este campo es opcional" name="motivo" onChange={handleChange} value={cita.motivo} />
               </div>
             </div>
 
