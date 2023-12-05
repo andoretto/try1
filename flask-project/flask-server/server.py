@@ -106,7 +106,6 @@ def cliente(documento):
     if not cliente:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
-    # Aquí puedes personalizar la respuesta según tus necesidades
     perfil_cliente_data = {
         "documento": cliente.documento,
         "nombre1": cliente.nombre1,
@@ -116,7 +115,6 @@ def cliente(documento):
         "telefono": cliente.telefono,
         "rol":cliente.roles_idrol,
         "tipoDoc":cliente.documentos_idDoc
-        # Otros campos relevantes del cliente
     }
 
     return jsonify(perfil_cliente_data)
@@ -263,7 +261,7 @@ def load_user(user_id):
     return Usuario.query.get(int(user_id))  
 
 #agregar una cita ruta
-@app.route('/agregar-cita')
+@app.route('/agregar-cita',methods=['POST'])
 def method_name():
     empleados_documento=request.json['empleados_documento']
     usuarios_documento=request.json['usuarios_documento']
@@ -271,21 +269,43 @@ def method_name():
     hora_str=request.json['hora']
     motivo=request.json.get('motivo',None)
 
-    #formateo de hora y fecha
-    fecha=datetime.strptime(fecha_str,'%Y-%m-%d').date()
-    hora=datetime.strptime(hora_str,'%H:%M:%S').time()
+
+    
 
     nueva_cita=Citas(
         empleados_documento=empleados_documento,
         usuarios_documento=usuarios_documento,
-        fecha=fecha,
-        hora=hora,
+        fecha=fecha_str,
+        hora=hora_str,
         motivo=motivo
     )
     db.session.add(nueva_cita)
     db.session.commit()
 
     return jsonify({"success":"Cita agregada exitosamente"})
+
+#ruta para consultar citas de acuerdo al documento del usuario
+@app.route("/cliente/citas/<int:documento>", methods=['GET'])
+def citasCliente(documento):
+    cita= Citas.query.filter_by(usuarios_documento=documento).first()
+
+    if not cita:
+        return jsonify({"error": "Cita  no encontrada"}), 404
+
+    fecha_formateada = cita.fecha.strftime("%Y-%m-%d")
+    hora_formateada = cita.hora.strftime("%H:%M:%S")
+
+    data_citas = {
+        "documento_cliente": cita.usuarios_documento,
+        "documento_empleado": cita.empleados_documento,
+        "fecha": fecha_formateada,
+        "hora": hora_formateada,
+        "motivo": cita.motivo,
+    }
+
+    #formateo de hora y fecha
+
+    return jsonify(data_citas)
 
 #login
 @app.route('/login',methods=['POST'])

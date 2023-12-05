@@ -2,14 +2,20 @@ import "../styles/administrador.css";
 import { useState,useEffect } from "react";
 import { useGlobalState } from '../context/GlobalStateProvider.jsx';
 import axios from "axios"
-import {Modal,ModalBody,ModalHeader,ModalFooter} from 'reactstrap'
+import {Modal,ModalBody,ModalFooter} from 'reactstrap'
+import ComponenteEdicion from "../components/editar.jsx";
 function Admin() {
   const [infoAdmin,SetInfoAdmin]=useState();
   const[infoUsuarios,SetInfoUsuarios]=useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalData, setModalData] = useState(null);
-  const[modalConsultar,setModalConsultar]=useState(false);
   const[modalOpen,setModalOpen]=useState(false);
+  const [documentoAEditar, setDocumentoAEditar]=useState(null)
+  const abrirModalEdicion= (documento)=>{
+    setDocumentoAEditar(documento);
+  }
+  const cerrarModalEdicion =()=>{
+    setDocumentoAEditar(null);
+  }
   const[addEmpleado,SetAddEmpleado]=useState({
         documento:'',
         nombre1:'',
@@ -19,6 +25,7 @@ function Admin() {
         telefono:''
   })
   const { state } = useGlobalState();
+  const [usuarioAEditar, setUsuarioAEditar] = useState(null);
   
   useEffect(() => { 
     const datosUsuarios = async () => {
@@ -51,22 +58,11 @@ function Admin() {
 if (loading) {
   return <p>Cargando...</p>;
 }
-/* const modalView=async(documento)=>{
-  setModalConsultar(true);
-  const usuario = await axios.get(`http://127.0.0.1:5000/cliente/${documento}`);
-  console.log(usuario.data)
-  setModalData(usuario.data)
-  
-} */
 const handleChange=(e)=>{
   const{name,value}=e.target;
   SetAddEmpleado({... addEmpleado,[name]:value})
   console.log(name+ " cambio a "+ value)
 }
-
-const closeModal=()=>{
-  setModalConsultar(false);
- }
 const closeModalAdd=()=>{
   setModalOpen(false);
   SetAddEmpleado({
@@ -81,6 +77,7 @@ const closeModalAdd=()=>{
  const openModalAdd=()=>{
   setModalOpen(true);
  }
+
 const borrarUsuario=async(documento)=>{
   try{
     await axios.delete('http://127.0.0.1:5000/eliminar-usuario/'+documento)
@@ -164,7 +161,8 @@ const submitEmpleado=(event)=>{
                             <td>{user.tipo_de_documento===1? "C.C":"T.I"}</td>
                             <td>{user.rol===1? "Administrador": "Cliente"}</td>
                             <td>
-                                <button className="btn  btn-sm bg-success" >
+                                <button className="btn  btn-sm bg-success"  onClick={()=>abrirModalEdicion(user.documento)}>
+                                 
                                 <i className="bi bi-pencil-fill"></i>
                                 </button>
                                 <button className="btn  btn-sm bg-danger"  onClick={()=>borrarUsuario(user.documento)} > 
@@ -187,46 +185,10 @@ const submitEmpleado=(event)=>{
           </div>
         </div>
       </div>
-       <Modal isOpen={modalConsultar}>
-        <ModalHeader>
-          <div>
-            {modalData && (
-              <label>
-                {modalData.nombre1 + (modalData.nombre2 ? ` ${modalData.nombre2}` : '') +
-                  ' ' +
-                  modalData.apellido1 + (modalData.apellido2 ? ` ${modalData.apellido2}` : '')}
-              </label>
-            )}
-          </div>
-        </ModalHeader>
-        <ModalBody>
-          <div>
-            {modalData && (
-              <div>
-                <label>Nombres: {modalData.nombre1 + (modalData.nombre2 ? ` ${modalData.nombre2}` : '')}</label>
-                <br />
-                <label>Apellidos: {modalData.apellido1 + (modalData.apellido2 ? ` ${modalData.apellido2}` : '')}</label>
-                <br />
-                <label>Documento: {modalData.documento}</label>
-                <br />
-                <br />
-                <label>Rol:{modalData.rol}</label>
-              </div>
-            )}
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <button className="btn btn-sm bg-danger"  onClick={() =>closeModal()}>
-            <i className="bi bi-x-lg"></i>
-          </button>
-        </ModalFooter>
-      </Modal> 
-
- 
+      {documentoAEditar && (<ComponenteEdicion documento={documentoAEditar} closeModal={cerrarModalEdicion}/>)}
+                    
       <Modal isOpen={modalOpen}>
-      <ModalHeader>
-          <h1 className="text-center">Registrar empleado</h1>
-        </ModalHeader>
+      
       <ModalBody>
         <form onSubmit={submitEmpleado} id="form_empleado">
         <div className="row">
