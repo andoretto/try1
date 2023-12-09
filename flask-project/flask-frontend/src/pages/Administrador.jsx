@@ -3,19 +3,11 @@ import { useState,useEffect } from "react";
 import { useGlobalState } from '../context/GlobalStateProvider.jsx';
 import axios from "axios"
 import {Modal,ModalBody,ModalFooter} from 'reactstrap'
-import ComponenteEdicion from "../components/editar.jsx";
 function Admin() {
   const [infoAdmin,SetInfoAdmin]=useState();
   const[infoUsuarios,SetInfoUsuarios]=useState([]);
   const [loading, setLoading] = useState(true);
   const[modalOpen,setModalOpen]=useState(false);
-  const [documentoAEditar, setDocumentoAEditar]=useState(null)
-  const abrirModalEdicion= (documento)=>{
-    setDocumentoAEditar(documento);
-  }
-  const cerrarModalEdicion =()=>{
-    setDocumentoAEditar(null);
-  }
   const[addEmpleado,SetAddEmpleado]=useState({
         documento:'',
         nombre1:'',
@@ -25,8 +17,6 @@ function Admin() {
         telefono:''
   })
   const { state } = useGlobalState();
-  const [usuarioAEditar, setUsuarioAEditar] = useState(null);
-  
   useEffect(() => { 
     const datosUsuarios = async () => {
       try {
@@ -78,15 +68,6 @@ const closeModalAdd=()=>{
   setModalOpen(true);
  }
 
-const borrarUsuario=async(documento)=>{
-  try{
-    await axios.delete('http://127.0.0.1:5000/eliminar-usuario/'+documento)
-    const nuevaData=infoUsuarios.filter((item)=>item.documento!==documento )
-    SetInfoUsuarios(nuevaData);
-  }catch(error){
-    console.error(error)
-  }
-}
 const submitEmpleado=(event)=>{
   event.preventDefault()
   const empleado={
@@ -147,7 +128,6 @@ const submitEmpleado=(event)=>{
                       <th>Documento</th>
                       <th>Tipo de documento</th>
                       <th>Rol</th>
-                      <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -160,15 +140,6 @@ const submitEmpleado=(event)=>{
                             <td>{user.documento}</td>
                             <td>{user.tipo_de_documento===1? "C.C":"T.I"}</td>
                             <td>{user.rol===1? "Administrador": "Cliente"}</td>
-                            <td>
-                                <button className="btn  btn-sm bg-success"  onClick={()=>abrirModalEdicion(user.documento)}>
-                                 
-                                <i className="bi bi-pencil-fill"></i>
-                                </button>
-                                <button className="btn  btn-sm bg-danger"  onClick={()=>borrarUsuario(user.documento)} > 
-                                <i className="bi bi-trash-fill  "></i>
-                                </button>
-                            </td>
                           </tr>
                         )
                       })
@@ -185,7 +156,6 @@ const submitEmpleado=(event)=>{
           </div>
         </div>
       </div>
-      {documentoAEditar && (<ComponenteEdicion documento={documentoAEditar} closeModal={cerrarModalEdicion}/>)}
                     
       <Modal isOpen={modalOpen}>
       

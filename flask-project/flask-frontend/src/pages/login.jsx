@@ -8,7 +8,7 @@ function Login() {
   const {dispatch}=useGlobalState();
   const nav = useNavigate();
   
-
+  
   const [credenciales,setCredenciales]=useState({
     documentoCredencial:"",
     contraseniaCredencial:""

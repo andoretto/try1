@@ -2,14 +2,12 @@ import "../styles/cliente.css";
 import { useGlobalState } from '../context/GlobalStateProvider.jsx';
 import axios from 'axios'
 import { useState,useEffect } from "react";
-import ComponenteEdicion from "../components/editar.jsx";
 import {Modal,ModalBody,ModalFooter,ModalHeader} from 'reactstrap'
 
 function Cliente() {
   const [infoCliente,SetInfoCliente]=useState();
   const { state } = useGlobalState();
   const [loading, setLoading] = useState(true);
-  const [documentoAEditar, setDocumentoAEditar]=useState(null)
   const [empleado, setEmpleado] = useState([]);
   const [citasClientes,SetCitasClientes]=useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -105,12 +103,7 @@ function Cliente() {
 if (loading) {
   return <p>Cargando...</p>;
 }
-const abrirModalEdicion= (documento)=>{
-  setDocumentoAEditar(documento);
-}
-const cerrarModalEdicion =()=>{
-  setDocumentoAEditar(null);
-}
+
 
   return (
     <div>
@@ -159,13 +152,9 @@ const cerrarModalEdicion =()=>{
             <div className="col-6 text-center">
               <button className="btn btn-primary mb-2" onClick={openModal}>Agenda tu cita</button>
             </div>
-            <div className="col-6 text-center">
-              <button className="btn btn-primary mb-2" onClick={()=>abrirModalEdicion(infoCliente.documento)}>Editar perfil</button>
-            </div>
           </div>
         </div>
       </div>
-      {documentoAEditar && (<ComponenteEdicion documento={documentoAEditar} closeModal={cerrarModalEdicion}/>)}
       <Modal isOpen={modalOpen}>
         <ModalHeader>
           <h1>Agenda tu cita</h1>

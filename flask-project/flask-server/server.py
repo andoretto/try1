@@ -202,6 +202,7 @@ def todos_los_empleados():
         lista_empleados.append(perfil_empleado)
 
     return jsonify(lista_empleados)
+
 #ruta para añadir Empleados
 @app.route('/registrar-empleado',methods=['POST'])
 def addEmpleado():
@@ -327,11 +328,7 @@ def login():
         return jsonify({"message":"Invalid credentials"}),401
     
 
-@app.route('/logout', methods=['POST'])
-@login_required
-def logout():
-    logout_user()
-    return jsonify({"message": "Logged out successfully"})   
+
 
 @app.route('/user',methods=['GET'])
 @login_required
