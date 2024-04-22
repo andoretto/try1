@@ -1,17 +1,72 @@
-.home{
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: rgb(255, 255, 255);
-    width: 50%;
-    margin-left: 25%;
-    border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+*{
+  margin: 0 auto;
+
 }
-.botones{
-  width: 80%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-left: 10%;
-  margin-bottom: 5%;
-  margin-top: 2%;
+.home{
+  background-color: aliceblue;
+}
+#table{
+  width: 60%;
+  height: 50%;
+}
+
+i{
+  color: black;
+  border-radius: 3px;
+}
+
+
+#icon{
+  background-color: rgb(127, 163, 255);
+  margin-right: 5px;
+}
+
+.options{
+  display: 'flex';
+  align-items: 'center';
+  justify-Content: 'center';
+  min-Height: '40px' 
+}
+
+.qst{
+  margin: 0;
+}
+
+.qst-container, .qstr-container{
+ 
+  border-top: 1px solid rgb(204, 204, 204);
+  border-right:1px solid rgb(204, 204, 204);
+  border-left: 1px solid rgb(204, 204, 204);
+  margin: 0;
+  padding: 0;
+  
+}
+.cancel-edit{
+  display: none;
+}
+.edit{
+  background-color:  rgb(244, 152, 3);
+}
+.edit:hover{
+  background-color: rgb(255, 204, 0);
+}
+
+.view:hover, .save{
+  background-color: rgb(10, 140, 214);
+  
+}
+.save i{
+  color: white;
+}
+.save:hover .clouda{
+  color: black;
+}
+.save:hover{
+  background-color: rgb(75, 174, 231);
+}
+.view i:hover {
+  color: white;
+}
+.save-edit{
+  display: none;
 }
