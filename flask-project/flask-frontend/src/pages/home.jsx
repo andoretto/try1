@@ -8,6 +8,7 @@ const Home = () => {
   const [data,setData]=useState();
   const [dataEdit, setDataEdit]=useState(false)
   const[modalConsultar,setModalConsultar]=useState(false);
+  const [selectedIDData, setSelectedIDData] = useState(null);
   const [modalData, setModalData] = useState([]);
   const[preguntas,setPreguntas]=useState([])
   useEffect(()=> {
@@ -25,17 +26,17 @@ const Home = () => {
 
   const modalView=async(idData)=>{
     setModalConsultar(true);
+    setSelectedIDData(idData)
     const data =await axios.get(`http://127.0.0.1:5000/info/${idData}`);
     setModalData(data.data.preguntas);
     setPreguntas(data.data.preguntas);
     console.log("esto es modalData",data.data.preguntas)
-    console.log("aqui van las preguntas correctas,", data.data.preguntas)
   }
 
   const closeModal=()=>{
     setModalConsultar(false);
    }
-   const cancelarEdicion=()=>{
+  const cancelEdit=()=>{
     setDataEdit(false)
     const cancelButton= document.querySelector(".cancel-edit")
     const saveButton= document.querySelector(".save-edit")
@@ -45,7 +46,7 @@ const Home = () => {
     editButton.style.display="block"
    }
    
-  const abrirModalEdicion= ()=>{
+  const modalEdit= ()=>{
     setDataEdit(true)
     const cancelButton= document.querySelector(".cancel-edit")
     const editButton= document.querySelector(".edit-edit")
@@ -56,14 +57,27 @@ const Home = () => {
     console.log("Si")
     
   }
+  const sendDataEdit= async ()=>{
+    
+    try{
+      const response = await axios.put(`http://127.0.0.1:5000/info/${selectedIDData}`,{
+        preguntas: preguntas,
+      })
+      console.log("Datos editados enviados:", response.data);
+    } catch (error){
+      console.error(error)
+      console.log("Los datos que se enviarian serian", preguntas)
+    }
+  }
 
   const handleChange = (e,dataIndex,itemIndex,itemIndex2) => {
     const newData = [...preguntas];
     console.log(e.target.value)
     newData[dataIndex][itemIndex][itemIndex2] = e.target.value;
-    
     setPreguntas(newData);
   };
+
+
   return (
     <div className="home" >
         <div className='Row'>
@@ -104,21 +118,21 @@ const Home = () => {
             </table>
           </div>
     </div>
-    <Modal isOpen={modalConsultar} toggle={() => closeModal()} className="modal-lg" modalClassName="modal-dialog-centered">
+    <Modal isOpen={modalConsultar} toggle={() => {closeModal(); cancelEdit();}} className="modal-lg" modalClassName="modal-dialog-centered">
       <ModalBody>
         <div >
           <div className=' d-flex justify-content-between'>
           <div className="m-2 cancel-edit">
-              <button onClick={()=>cancelarEdicion()} className="btn btn-sm btn-danger" id="icon-edit">
+              <button onClick={()=>cancelEdit()} className="btn btn-sm btn-danger" id="icon-edit">
               <i className="bi bi-x"></i></button>
             </div>
             <div className="flex-grow-1"></div>
             <div className="m-2 save-edit">
-              <button className="btn btn-sm save" >
+              <button className="btn btn-sm save"  onClick={()=>sendDataEdit()}>
               <i className="bi bi-cloud-check-fill clouda"></i></button>
             </div>
             <div className="m-2 edit-edit">
-              <button onClick={()=>abrirModalEdicion()} className="btn btn-sm edit" id="icon-edit">
+              <button onClick={()=>modalEdit()} className="btn btn-sm edit" id="icon-edit">
               <i className="bi bi-pencil-fill"></i></button>
             </div>
            
@@ -145,7 +159,7 @@ const Home = () => {
                           <div  key={itemIndex}>
                             {Array.isArray(item) && item.map((item2, itemIndex2) => (
                               <>
-                              {dataEdit?  (<input key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
+                              {dataEdit?  (<textarea key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
                               ( <p key={itemIndex2} className='text-start qst' >{item2}</p>)}
                            
                               <hr/>
