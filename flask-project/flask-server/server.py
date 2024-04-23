@@ -47,19 +47,23 @@ def mainData(IDData):
     
     preguntas_filtro_sol_medio=data.preguntas.replace("\u263c","")
     preguntas_separadas_l =preguntas_filtro_sol_medio.split("¬")
-    preguntas_separadas_l.remove(" ")
+    preguntas_separadas_l = [pregunta for pregunta in preguntas_separadas_l if pregunta.strip()]
     
     preguntas_por_grupo=[]
     for i in range(0, len(preguntas_separadas_l),10):
         preguntas_separadas_l[i].replace("☼","")
         sublista=preguntas_separadas_l[i:i+10]
         if len(sublista)>= 9:
-            
             sublista[7]=sublista[7].split(">")
-            sublista[7].remove("¶")
-
+            sublista[7]=[pregunta for pregunta in sublista[7] if pregunta.strip("¶")]
+            if len(sublista[7][-1]) > 0:
+                sublista[7][-1]=sublista[7][-1][:-1]
+            print ("Esto es lo que busco:", sublista[7][-1][-1])
             sublista[9]=sublista[9].split("<")
-            sublista[9].remove("¶")
+            sublista[9]=[pregunta for pregunta in sublista[9] if pregunta.strip("¶")]
+            if len(sublista[9]) > 0:
+                sublista[9][-1]=sublista[9][-1][:-1]
+            print ("Esto es lo que busco:", sublista[9][-1][-1])
         preguntas_por_grupo.append(sublista)
 
     dataLoaded = {
@@ -107,28 +111,45 @@ def allData():
         lista_datos.append(dataComplete)
 
     return jsonify(lista_datos)
-@app.route("/info/<int:IDData>", methods=['PUT'])
-def editUsuario(IDData):
-
+@app.route("/update/<int:IDData>", methods=['PUT'])
+def update_data(IDData):
     data = Data.query.get(IDData)
 
     if not data:
         return jsonify({"error": "Data no encontrada"}), 404
 
+    json_data = request.json
 
-    data.IDData = request.json.get('IDData', data.IDData)
-    data.Date = request.json.get('Date', data.Date)
-    data.IDGame = request.json.get('IDGame', data.IDGame)
-    data.NombreJuego = request.json.get('NombreJuego', data.NombreJuego)
-    data.IDUser = request.json.get('IDUser', data.IDUser)
-    data.Username = request.json.get('Username', data.Username)
-    data.Gang=request.json.get('Gang',data.Gang)
-    data.preguntas=request.json.get('preguntas',data.preguntas)
-    data.Intento=request.json.get('Intento',data.Intento)
-    
+    # Revertir el procesamiento de preguntas
+    preguntas = json_data.get('preguntas', [])
+    preguntas_juntas = []
+    for grupo in preguntas:
+        # Convertir cada elemento a cadena de texto
+        grupo_str = [str(item) for item in grupo]
+        preguntas_grupo = '¬'.join(grupo_str)
+        preguntas_grupo += " "
+        # Revertir el procesamiento de los símbolos ">" y "<"
+        preguntas_grupo = preguntas_grupo.replace("&gt;", ">")
+        preguntas_grupo = preguntas_grupo.replace("&lt;", "<")
+
+        preguntas_juntas.append(preguntas_grupo)
+
+    preguntas_final = "".join(preguntas_juntas)
+    preguntas_final+="☼"
+    json_data['preguntas'] = preguntas_final
+
+    data.IDData = json_data.get('IDData', data.IDData)
+    data.Date = json_data.get('Date', data.Date)
+    data.IDGame = json_data.get('IDGame', data.IDGame)
+    data.NombreJuego = json_data.get('NombreJuego', data.NombreJuego)
+    data.IDUser = json_data.get('IDUser', data.IDUser)
+    data.Username = json_data.get('Username', data.Username)
+    data.Gang = json_data.get('Gang', data.Gang)
+    data.Intento = json_data.get('Intento', data.Intento)
+    data.preguntas = preguntas_final
     db.session.commit()
 
-    return jsonify({"success": " Cambio hecho correctamente"})
+    return jsonify({"success": "Cambio hecho correctamente"})
 
 
 if __name__ == "__main__":

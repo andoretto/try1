@@ -28,13 +28,18 @@ const Home = () => {
     setModalConsultar(true);
     setSelectedIDData(idData)
     const data =await axios.get(`http://127.0.0.1:5000/info/${idData}`);
+    
     setModalData(data.data.preguntas);
     setPreguntas(data.data.preguntas);
+
     console.log("esto es modalData",data.data.preguntas)
+    
   }
 
   const closeModal=()=>{
     setModalConsultar(false);
+    setModalData([]);
+    setPreguntas([]);
    }
   const cancelEdit=()=>{
     setDataEdit(false)
@@ -60,13 +65,13 @@ const Home = () => {
   const sendDataEdit= async ()=>{
     
     try{
-      const response = await axios.put(`http://127.0.0.1:5000/info/${selectedIDData}`,{
+      const response = await axios.put(`http://127.0.0.1:5000/update/${selectedIDData}`,{
         preguntas: preguntas,
+
       })
       console.log("Datos editados enviados:", response.data);
     } catch (error){
       console.error(error)
-      console.log("Los datos que se enviarian serian", preguntas)
     }
   }
 
@@ -119,87 +124,103 @@ const Home = () => {
           </div>
     </div>
     <Modal isOpen={modalConsultar} toggle={() => {closeModal(); cancelEdit();}} className="modal-lg" modalClassName="modal-dialog-centered">
-      <ModalBody>
-        <div >
-          <div className=' d-flex justify-content-between'>
-          <div className="m-2 cancel-edit">
-              <button onClick={()=>cancelEdit()} className="btn btn-sm btn-danger" id="icon-edit">
-              <i className="bi bi-x"></i></button>
-            </div>
-            <div className="flex-grow-1"></div>
-            <div className="m-2 save-edit">
-              <button className="btn btn-sm save"  onClick={()=>sendDataEdit()}>
-              <i className="bi bi-cloud-check-fill clouda"></i></button>
-            </div>
-            <div className="m-2 edit-edit">
-              <button onClick={()=>modalEdit()} className="btn btn-sm edit" id="icon-edit">
-              <i className="bi bi-pencil-fill"></i></button>
-            </div>
-           
-           
+      {modalData.length>0? <ModalBody>
+       
+       <div >
+        <div className=' d-flex justify-content-between'>
+        <div className="m-2 cancel-edit">
+            <button onClick={()=>cancelEdit()} className="btn btn-sm btn-danger" id="icon-edit">
+            <i className="bi bi-x"></i></button>
           </div>
-          {modalData.map && modalData.map((data, index) => (
-            <div className="col-12" key={data.id}>
-              <div className="row">
-                {Array.isArray(data) && data.map((item, itemIndex) => (
-                  itemIndex !== 7 && itemIndex !== 6 && itemIndex !== 9 && itemIndex !== 8 ? (
-                    <div className="col-6" key={itemIndex}>
-                      {itemIndex === 0 ? (<p>Fecha: {item}</p>) : (<p>{item[0].toUpperCase() + item.slice(1)}</p>)}
-                    </div>
-                  ) : null
-                ))}
-              </div>
-              <div >
-                <div className='row'> 
-                  <div className='col-6'>
-                  <h3 className='text-center'>Incorrectas</h3>
-                    <div className="qst-container">
-                      {Array.isArray(data) && data.map((item, itemIndex) => (
-                        itemIndex === 7 ? (
-                          <div  key={itemIndex}>
-                            {Array.isArray(item) && item.map((item2, itemIndex2) => (
-                              <>
-                              {dataEdit?  (<textarea key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
-                              ( <p key={itemIndex2} className='text-start qst' >{item2}</p>)}
-                           
-                              <hr/>
-                              </>
-                              
-                            ))}
-                            
-                          </div>
-                        ) : null
-                      ))}
-                    </div>
+          <div className="flex-grow-1"></div>
+          <div className="m-2 save-edit">
+            <button className="btn btn-sm save"  onClick={()=>sendDataEdit()}>
+            <i className="bi bi-cloud-check-fill clouda"></i></button>
+          </div>
+          <div className="m-2 edit-edit">
+            <button onClick={()=>modalEdit()} className="btn btn-sm edit" id="icon-edit">
+            <i className="bi bi-pencil-fill"></i></button>
+          </div>
+         
+         
+        </div>
+
+
+         {modalData.map && modalData.map((data, index) => (
+          <div className="col-12" key={data.id}>
+            <div className="row">
+              {Array.isArray(data) && data.map((item, itemIndex) => (
+                itemIndex !== 7 && itemIndex !== 6 && itemIndex !== 9 && itemIndex !== 8 ? (
+                  <div className="col-6" key={item}>
+                    {itemIndex === 0 ? (<p>Fecha: {item}</p>) : (<p>{item[0].toUpperCase() + item.slice(1)}</p>)}
                   </div>
-                  <div className="col-6">
-                  <h3 className='text-center'>Correctas</h3>
-                  <div className="qstr-container"> 
-                  {Array.isArray(data) && data.map((item, itemIndex) => (
-                    
-                      itemIndex ===  9? (
+                ) : null
+              ))}
+            </div>
+            <div >
+              <div className='row'> 
+                <div className='col-6'>
+                <h3 className='text-center'>Incorrectas</h3>
+                  <div className="qst-container">
+                    {Array.isArray(data) && data.map((item, itemIndex) => (
+                      itemIndex === 7 ? (
                         <div  key={itemIndex}>
-                          
                           {Array.isArray(item) && item.map((item2, itemIndex2) => (
-                            <> {dataEdit?  (<input key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
-                              ( <p key={itemIndex2} className='text-start qst' >{item2}</p>)}
-                           
+                            <>
+                            {dataEdit?  (<textarea key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
+                            ( <p key={itemIndex2} className='text-start qst' >{item2}</p>)}
+                         
                             <hr/>
                             </>
+                            
                           ))}
+                          
                         </div>
                       ) : null
                     ))}
-                    </div>
-                      
                   </div>
-                  <hr />
                 </div>
+                <div className="col-6">
+                <h3 className='text-center'>Correctas</h3>
+                <div className="qstr-container"> 
+                {Array.isArray(data) && data.map((item, itemIndex) => (
+                  
+                    itemIndex ===  9? (
+                      <div  key={itemIndex}>
+                        
+                        {Array.isArray(item) && item.map((item2, itemIndex2) => (
+                          <> {dataEdit?  (<input key={itemIndex2} type='text' className='form-control' onChange={(e) => handleChange(e, index, itemIndex, itemIndex2)}  value={item2}/> ):
+                            ( <p key={itemIndex2} className='text-start qst' >{item2}</p>)}
+                         
+                          <hr/>
+                          </>
+                        ))}
+                      </div>
+                    ) : null
+                  ))}
+                  </div>
+                    
+                </div>
+                <hr />
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+      
+    </ModalBody> :
+      <ModalBody>
+        <div className=' justify-content-between d-flex '  >
+        
+          <div className='d-flex justify-content-center align-items-center m-2'>
+          
+            <h3>No se presentan intentos asociados</h3>
+            
+          </div>
+          <button className='btn btn-danger m-2' onClick={()=>closeModal()}> <i className="bi bi-x"></i></button>
         </div>
-      </ModalBody>
+      </ModalBody>}
+      
     </Modal>
 
        
