@@ -116,27 +116,50 @@ def update_data(IDData):
     data = Data.query.get(IDData)
 
     if not data:
-        return jsonify({"error": "Data no encontrada"}), 404
+        return jsonify({"Error": "Data no encontrada"}), 404
 
     json_data = request.json
 
-    # Revertir el procesamiento de preguntas
     preguntas = json_data.get('preguntas', [])
-    preguntas_juntas = []
+    
+    preguntas_correctas_filter=[]
+    preguntas_incorrectas_filter=[]
+    arreglosinpreguntas = preguntas[:]
     for grupo in preguntas:
-        # Convertir cada elemento a cadena de texto
-        grupo_str = [str(item) for item in grupo]
-        preguntas_grupo = '¬'.join(grupo_str)
-        preguntas_grupo += " "
-        # Revertir el procesamiento de los símbolos ">" y "<"
-        preguntas_grupo = preguntas_grupo.replace("&gt;", ">")
-        preguntas_grupo = preguntas_grupo.replace("&lt;", "<")
+        preguntas_correctas=""
+        preguntas_incorrectas=""
 
-        preguntas_juntas.append(preguntas_grupo)
+        for pregunta in grupo[7]:
+            preguntas_incorrectas+=">"+pregunta
+         
 
-    preguntas_final = "".join(preguntas_juntas)
-    preguntas_final+="☼"
-    json_data['preguntas'] = preguntas_final
+        if len(preguntas_incorrectas)>0:
+            preguntas_incorrectas="¶"+preguntas_incorrectas+"¶"
+        else:
+            preguntas_incorrectas+="¶"
+
+
+        for pregunta in grupo[9]:
+            preguntas_correctas+="<"
+            preguntas_correctas+=pregunta
+
+        if len(preguntas_correctas)>0:
+            preguntas_correctas="¶"+preguntas_correctas+"¶"
+        else:
+            preguntas_correctas+="¶"
+        
+
+        preguntas_correctas_filter.append(preguntas_correctas)
+        preguntas_incorrectas_filter.append(preguntas_incorrectas)
+
+    for i, grupo in enumerate(arreglosinpreguntas):
+        grupo[7]=preguntas_incorrectas_filter[i]
+        grupo[9]=preguntas_correctas_filter[i]
+
+       
+
+    texto_final="¬".join(arreglosinpreguntas[0])
+    texto_final+="¬ ☼"
 
     data.IDData = json_data.get('IDData', data.IDData)
     data.Date = json_data.get('Date', data.Date)
@@ -146,10 +169,10 @@ def update_data(IDData):
     data.Username = json_data.get('Username', data.Username)
     data.Gang = json_data.get('Gang', data.Gang)
     data.Intento = json_data.get('Intento', data.Intento)
-    data.preguntas = preguntas_final
+    data.preguntas = texto_final
     db.session.commit()
 
-    return jsonify({"success": "Cambio hecho correctamente"})
+    return jsonify({"Estado": "Exitoso"}),200
 
 
 if __name__ == "__main__":
