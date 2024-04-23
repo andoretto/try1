@@ -92,8 +92,8 @@ const Home = () => {
                   <tr>
                     <th scope='col'>ID</th>
                     <th scope='col'>Fecha</th>
-                    <th scope='col'>IDGame</th>
-                    <th scope='col'>Intento</th>
+                    <th scope='col'>Nombre del juego</th>
+                    <th scope='col'>Intentos</th>
                     <th scope='col'>Nombre del juego</th>
                     <th scope='col'>Usuario</th>
                     <th scope='col actions'>Acciones</th>

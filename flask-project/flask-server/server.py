@@ -58,12 +58,12 @@ def mainData(IDData):
             sublista[7]=[pregunta for pregunta in sublista[7] if pregunta.strip("¶")]
             if len(sublista[7][-1]) > 0:
                 sublista[7][-1]=sublista[7][-1][:-1]
-            print ("Esto es lo que busco:", sublista[7][-1][-1])
+                print ("Esto es lo que busco:", sublista[7][-1][-1])
             sublista[9]=sublista[9].split("<")
             sublista[9]=[pregunta for pregunta in sublista[9] if pregunta.strip("¶")]
             if len(sublista[9]) > 0:
                 sublista[9][-1]=sublista[9][-1][:-1]
-            print ("Esto es lo que busco:", sublista[9][-1][-1])
+                print ("Esto es lo que busco:", sublista[9][-1][-1])
         preguntas_por_grupo.append(sublista)
 
     dataLoaded = {
